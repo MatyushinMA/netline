@@ -5,9 +5,9 @@
 
 namespace Netline::Graph {
 
-void LineGraph::add_node(std::string id) {
+void LineGraph::add_node(std::string id, NodeType type) {
     assert(id_map.find(id) == id_map.end());
-    nodes.emplace_back(id);
+    nodes.emplace_back(id, type);
     acquired_potential.push_back(0);
     if (id != "") {
         id_map.insert({{id, nodes.size() - 1}});
@@ -16,8 +16,10 @@ void LineGraph::add_node(std::string id) {
 
 void LineGraph::add_edge(std::size_t from, std::size_t to) {
     assert((from < nodes.size()) && (to < nodes.size()));
-    nodes[from].add_out_edge(to);
-    nodes[to].add_in_edge(from);
+    Edge new_edge = Edge(from, to);
+    nodes[from].add_out_edge(new_edge);
+    nodes[to].add_in_edge(new_edge);
+    nodes[from].norm();
 }
 
 void LineGraph::add_edge(std::string from_id, std::size_t to) {
@@ -68,6 +70,12 @@ void LineGraph::set_output(std::string id) {
 
 void LineGraph::print() {
     for (const auto [i, node] : enumerate(nodes)) {
+        if (node.type == Excitatory) {
+            std::cout << "+";
+        }
+        else {
+            std::cout << "-";
+        }
         if (node.identifier == "") {
             std::cout << i << "(" << node.potential << ")";
         }
@@ -81,15 +89,16 @@ void LineGraph::print() {
             std::cout << ": [ ";
         }
 
-        for (const auto j : node.out_edges()) {
-            assert(j < nodes.size());
-            auto& j_node = nodes[j];
-            if (j_node.identifier == "") {
-                std::cout << j << " ";
+        for (const std::shared_ptr<Edge> edge : node.out_edges()) {
+            assert(edge->to() < nodes.size());
+            auto& to_node = nodes[edge->to()];
+            if (to_node.identifier == "") {
+                std::cout << edge->to();
             }
             else {
-                std::cout << j_node.identifier << " ";
+                std::cout << to_node.identifier;
             }
+            std::cout << "(" << edge->weight() << ") ";
         }
         std::cout << " ]" << std::endl;
     }

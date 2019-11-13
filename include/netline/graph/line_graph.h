@@ -14,7 +14,7 @@ namespace Netline::Graph {
 class LineGraph {
 private:
     std::vector<Node> nodes;
-    std::vector<std::uint32_t> acquired_potential;
+    std::vector<std::int64_t> acquired_potential;
     std::unordered_map<std::string, std::size_t> id_map;
     std::set<std::size_t> inputs;
     std::set<std::size_t> outputs;
@@ -31,7 +31,7 @@ public:
     /**
     Adds new empty node
     */
-    void add_node(std::string id="");
+    void add_node(std::string id="", NodeType type=Excitatory);
 
     /**
     Sets node as input
@@ -54,12 +54,12 @@ public:
     /**
     Sets values of input potentials
     */
-    void initialize(std::unordered_map<std::string, std::uint32_t> potentials);
+    void feed(std::unordered_map<std::string, std::uint32_t> potentials);
 
     /**
     Moves potentials through graph for i steps
     */
-    std::unordered_map<std::string, std::uint32_t> step(std::size_t num_steps=1, bool* has_activated_nodes=nullptr);
+    std::unordered_map<std::string, std::uint32_t> step(std::size_t num_steps=1, std::size_t global_step=0, bool* has_activated_nodes=nullptr);
 
     /**
     Moves potentials through graph until decay

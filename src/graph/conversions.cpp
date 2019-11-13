@@ -6,8 +6,12 @@
 
 namespace Netline::Graph::Conversions {
 
-std::uint32_t exponential(std::uint32_t potential, std::uint32_t acquired_potential) {
-    return static_cast<std::uint32_t>(exp(log(1 + potential) + Constants::exp_skew*acquired_potential) - 1);
+std::int64_t linear(std::uint32_t potential, std::int64_t acquired_potential) {
+    return static_cast<std::int64_t>(static_cast<std::int64_t>(potential) + acquired_potential);
+}
+
+std::int64_t exponential(std::uint32_t potential, std::int64_t acquired_potential) {
+    return static_cast<std::int64_t>(Constants::exponential_skew*static_cast<std::int64_t>(potential)*acquired_potential + static_cast<std::int64_t>(potential) + acquired_potential);
 }
 
 } // namespace Netline::Graph::Conversions

@@ -1,29 +1,43 @@
 #include <netline/graph/node.h>
 
+#include <algorithm>
+
 namespace Netline::Graph {
 
-void Node::add_out_edge(std::size_t to) {
-    outs.insert(to);
+void Node::norm() {
+    double sum_edge_weight = 0.;
+    for (const auto edge : outs) {
+        sum_edge_weight += edge->weight();
+    }
+    for (auto edge : outs) {
+        edge->norm(sum_edge_weight);
+    }
 }
 
-void Node::add_in_edge(std::size_t from) {
-    ins.insert(from);
+void Node::add_out_edge(Edge& edge) {
+    auto found = std::find_if(outs.begin(), outs.end(), [&edge](const std::shared_ptr<Edge> arg) { return arg->to() == edge.to(); });
+    assert(found == outs.end());
+    outs.insert(std::make_shared<Edge>(edge));
+}
+
+void Node::add_in_edge(Edge& edge) {
+    auto found = std::find_if(ins.begin(), ins.end(), [&edge](const std::shared_ptr<Edge> arg) { return arg->from() == edge.from(); });
+    assert(found == ins.end());
+    ins.insert(std::make_shared<Edge>(edge));
 }
 
 void Node::remove_out_edge(std::size_t to) {
-    outs.erase(to);
+    auto found = std::find_if(outs.begin(), outs.end(), [to](const std::shared_ptr<Edge> arg) { return arg->to() == to; });
+    if (found != outs.end()) {
+        outs.erase(*found);
+    }
 }
 
 void Node::remove_in_edge(std::size_t from) {
-    ins.erase(from);
-}
-
-const std::set<std::size_t> Node::out_edges() const {
-    return outs;
-}
-
-const std::set<std::size_t> Node::in_edges() const {
-    return ins;
+    auto found = std::find_if(ins.begin(), ins.end(), [from](const std::shared_ptr<Edge> arg) { return arg->from() == from; });
+    if (found != ins.end()) {
+        ins.erase(*found);
+    }
 }
 
 } // namespace Netline::Graph

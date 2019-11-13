@@ -1,35 +1,49 @@
 #ifndef NETLINE_GRAPH_NODE_H
 #define NETLINE_GRAPH_NODE_H
 
+#include <netline/graph/edge.h>
+
 #include <vector>
 #include <string>
 #include <set>
 
 namespace Netline::Graph {
 
+enum NodeType {
+    Excitatory = 1,
+    Inhibitory = -1
+};
+
 class Node {
 private:
-    std::set<std::size_t> outs;
-    std::set<std::size_t> ins;
+    std::set<std::shared_ptr<Edge>> outs;
+    std::set<std::shared_ptr<Edge>> ins;
 
 public:
     std::string identifier = "";
     std::uint32_t potential = 0;
     bool ltd = false;
-    int type = 1;
+    NodeType type = Excitatory;
 
     Node() {}
-    Node(std::string _identifier): identifier(_identifier) {}
+    Node(std::string _identifier, NodeType _type):
+         identifier(_identifier),
+         type(_type) {}
 
     /**
-    Adds out edge to to
+    Norms out edges so their weights sums to 1
     */
-    void add_out_edge(std::size_t to);
+    void norm();
 
     /**
-    Adds in edge from from
+    Adds out edge
     */
-    void add_in_edge(std::size_t from);
+    void add_out_edge(Edge& edge);
+
+    /**
+    Adds in edge
+    */
+    void add_in_edge(Edge& edge);
 
     /**
     Removes out edge to to
@@ -44,12 +58,12 @@ public:
     /**
     Returns out edges
     */
-    const std::set<std::size_t> out_edges() const;
+    const std::set<std::shared_ptr<Edge>>& out_edges() const { return outs; };
 
     /**
     Return in edges
     */
-    const std::set<std::size_t> in_edges() const;
+    const std::set<std::shared_ptr<Edge>>& in_edges() const { return ins; };
 };
 
 } // namespace Netline::Graph
