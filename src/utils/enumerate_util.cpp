@@ -1,3 +1,6 @@
+#ifndef NETLINE_UTILS_ENUMERATE_CPP
+#define NETLINE_UTILS_ENUMERATE_CPP
+
 #include <tuple>
 
 template <typename T,
@@ -26,5 +29,7 @@ constexpr auto enumerate(T&& iterable) {
             return iterator{ 0, std::end(iterable) };
         }
     };
-    return iterable_wrapper{ std::forward<T>(iterable) };
+    return iterable_wrapper { std::forward<T>(iterable) };
 }
+
+#endif // NETLINE_UTILS_ENUMERATE_CPP

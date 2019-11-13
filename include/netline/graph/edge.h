@@ -2,11 +2,13 @@
 #define NETLINE_GRAPH_EDGE_H
 
 #include <netline/constants.h>
+#include <netline/graph/stats.h>
 
 #include <cstdint>
 #include <cassert>
 #include <cstddef>
 #include <random>
+#include <map>
 
 namespace Netline::Graph {
 
@@ -15,6 +17,7 @@ private:
     std::size_t from_;
     std::size_t to_;
     double weight_;
+    std::map<std::size_t, Stats::EdgeStats> stats;
 
 public:
     Edge(std::size_t _from, std::size_t _to):
@@ -34,6 +37,9 @@ public:
     double weight() const { return weight_; }
     void infix() { weight_ *= Constants::edge_weight_factor; }
     void norm(double factor) { assert(factor > 0); weight_ /= factor; }
+    void save_stats(std::size_t global_step, Stats::EdgeStats&& _stat);
+    const Stats::EdgeStats& get_stats(std::size_t global_step) const;
+    const Stats::EdgeStats& get_last_stats() const;
 };
 
 } // namespace Netline::Graph

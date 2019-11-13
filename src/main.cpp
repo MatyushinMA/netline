@@ -15,9 +15,6 @@ int main() {
     graph.set_input("in");
     graph.set_output("out");
     graph.feed({{"in", 850}});
-    auto ret = graph.evaluate();
-    for (auto [identifier, potential] : ret) {
-        std::cout << identifier << " : " << potential << std::endl;
-    }
+    graph.evaluate();
     return 0;
 }

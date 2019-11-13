@@ -5,6 +5,7 @@ set(SOURCE_FILES
     line_graph_utility.cpp
     node.cpp
     edge.cpp
+    stats.cpp
 )
 
 add_library(Graph ${SOURCE_FILES})

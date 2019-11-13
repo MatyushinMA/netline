@@ -7,6 +7,9 @@
 
 namespace Netline::Graph::Activations {
 
+/**
+ReLU activation
+*/
 std::uint32_t linear(std::uint32_t potential);
 
 } // namespace Netline::Graph::Activations

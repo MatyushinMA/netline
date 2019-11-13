@@ -68,40 +68,42 @@ void LineGraph::set_output(std::string id) {
     outputs.insert(id_map[id]);
 }
 
-void LineGraph::print() {
-    for (const auto [i, node] : enumerate(nodes)) {
+std::ostream& operator<<(std::ostream &stream, const LineGraph& g) {
+    for (const auto [i, node] : enumerate(g.nodes)) {
         if (node.type == Excitatory) {
-            std::cout << "+";
+            stream << "+";
         }
         else {
-            std::cout << "-";
+            stream << "-";
         }
         if (node.identifier == "") {
-            std::cout << i << "(" << node.potential << ")";
+            stream << i << "(" << node.potential << ")";
         }
         else {
-            std::cout << node.identifier << "(" << node.potential << ")";
+            stream << node.identifier << "(" << node.potential << ")";
         }
         if (node.ltd) {
-            std::cout << "*: [ ";
+            stream << "X: [ ";
         }
         else {
-            std::cout << ": [ ";
+            stream << ": [ ";
         }
 
         for (const std::shared_ptr<Edge> edge : node.out_edges()) {
-            assert(edge->to() < nodes.size());
-            auto& to_node = nodes[edge->to()];
+            assert(edge->to() < g.nodes.size());
+            auto& to_node = g.nodes[edge->to()];
             if (to_node.identifier == "") {
-                std::cout << edge->to();
+                stream << edge->to();
             }
             else {
-                std::cout << to_node.identifier;
+                stream << to_node.identifier;
             }
-            std::cout << "(" << edge->weight() << ") ";
+            stream << "(" << edge->weight() << ") ";
         }
-        std::cout << " ]" << std::endl;
+        stream << "]" << std::endl;
+        stream << node.get_last_stats() << std::endl;
     }
+    return stream;
 }
 
 } // namespace Netline::Graph

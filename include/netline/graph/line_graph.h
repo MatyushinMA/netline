@@ -74,11 +74,7 @@ public:
     void remove_edge(std::size_t from, std::string to_id);
     void remove_edge(std::string from_id, std::string to_id);
 
-    /**
-    Prints the graph structure
-    */
-    void print();
-
+    friend std::ostream& operator<<(std::ostream &stream, const LineGraph& g);
 };
 
 } // namespace Netline::Graph

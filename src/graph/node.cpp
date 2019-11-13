@@ -1,6 +1,8 @@
 #include <netline/graph/node.h>
+#include <netline/constants.h>
 
 #include <algorithm>
+#include <cassert>
 
 namespace Netline::Graph {
 
@@ -38,6 +40,23 @@ void Node::remove_in_edge(std::size_t from) {
     if (found != ins.end()) {
         ins.erase(*found);
     }
+}
+
+void Node::save_stats(std::size_t global_step, Stats::NodeStats&& _stat) {
+    stats.emplace(std::make_pair(global_step, std::move(_stat)));
+    if (stats.size() > Constants::stats_window) {
+        stats.erase(stats.begin());
+    }
+}
+
+const Stats::NodeStats& Node::get_stats(std::size_t global_step) const {
+    assert(stats.count(global_step) == 1);
+    return stats.at(global_step);
+}
+
+const Stats::NodeStats& Node::get_last_stats() const {
+    assert(stats.begin() != stats.end());
+    return (stats.end()--)->second;
 }
 
 } // namespace Netline::Graph

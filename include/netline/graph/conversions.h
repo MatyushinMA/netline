@@ -5,7 +5,14 @@
 
 namespace Netline::Graph::Conversions {
 
+/**
+Summing conversion
+*/
 std::int64_t linear(std::uint32_t potential, std::int64_t acquired_potential);
+
+/**
+Exponential conversion
+*/
 std::int64_t exponential(std::uint32_t potential, std::int64_t acquired_potential);
 
 } // namespace Netline::Graph

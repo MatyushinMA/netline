@@ -2,10 +2,11 @@
 #define NETLINE_GRAPH_NODE_H
 
 #include <netline/graph/edge.h>
+#include <netline/graph/stats.h>
 
-#include <vector>
 #include <string>
 #include <set>
+#include <map>
 
 namespace Netline::Graph {
 
@@ -18,6 +19,7 @@ class Node {
 private:
     std::set<std::shared_ptr<Edge>> outs;
     std::set<std::shared_ptr<Edge>> ins;
+    std::map<std::size_t, Stats::NodeStats> stats;
 
 public:
     std::string identifier = "";
@@ -58,12 +60,27 @@ public:
     /**
     Returns out edges
     */
-    const std::set<std::shared_ptr<Edge>>& out_edges() const { return outs; };
+    const std::set<std::shared_ptr<Edge>>& out_edges() const { return outs; }
 
     /**
     Return in edges
     */
-    const std::set<std::shared_ptr<Edge>>& in_edges() const { return ins; };
+    const std::set<std::shared_ptr<Edge>>& in_edges() const { return ins; }
+
+    /**
+    Saves stats for given global step
+    */
+    void save_stats(std::size_t global_step, Stats::NodeStats&& _stat);
+
+    /**
+    Returns stats for given global step
+    */
+    const Stats::NodeStats& get_stats(std::size_t global_step) const;
+
+    /**
+    Returns last recorded stats
+    */
+    const Stats::NodeStats& get_last_stats() const;
 };
 
 } // namespace Netline::Graph
