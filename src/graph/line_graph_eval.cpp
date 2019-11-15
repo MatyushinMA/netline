@@ -1,6 +1,7 @@
 #include <netline/graph/line_graph.h>
 #include <netline/graph/activations.h>
 #include <netline/graph/conversions.h>
+#include <netline/graph/convertors.h>
 #include <netline/constants.h>
 #include <netline/graph/stats.h>
 #include <utils/enumerate_util.cpp>
@@ -11,23 +12,24 @@
 
 namespace Netline::Graph {
 
-void LineGraph::feed(std::unordered_map<std::string, std::uint32_t> potentials) {
-    for (auto [identifier, potential] : potentials) {
+void LineGraph::feed(std::unordered_map<std::string, double> in_values) {
+    for (auto [identifier, in_value] : in_values) {
+        assert((in_value >= 0.) && (in_value <= 1.));
         assert(id_map.find(identifier) != id_map.end());
         auto node_num = id_map[identifier];
-        nodes[node_num].potential = potential;
+        nodes[node_num].potential = Convertors::in_convertor(in_value);
     }
 }
 
-std::unordered_map<std::string, std::uint32_t> LineGraph::step(std::size_t num_steps, std::size_t global_step, bool* has_activated_nodes) {
+std::unordered_map<std::string, double> LineGraph::step(std::size_t num_steps, std::size_t global_step, bool* has_activated_nodes) {
     if (has_activated_nodes != nullptr) {
         *has_activated_nodes = false;
     }
     clear_buffers();
-    std::unordered_map<std::string, std::uint32_t> ret = std::unordered_map<std::string, std::uint32_t>();
+    std::unordered_map<std::string, double> ret;
     for (std::size_t num_step = 0; num_step < num_steps; num_step++) {
         for (Node& node : nodes) {
-            Stats::NodeStats node_stat;
+            Stats::NodeStats node_stat = Stats::NodeStats();
             node_stat.potential = node.potential;
             if (global_step > 0) {
                 for (std::shared_ptr<Edge> edge : node.in_edges()) {
@@ -58,11 +60,22 @@ std::unordered_map<std::string, std::uint32_t> LineGraph::step(std::size_t num_s
                     sum_edge_weight += edge->weight();
                     edge->save_stats(global_step, std::move(edge_stat));
                 }
-                node_stat.median_outs_weight = median(edge_weights);
+                if (edge_weights.size() > 0) {
+                    node_stat.median_outs_weight = median(edge_weights);
+                }
                 for (std::shared_ptr<Edge> edge : node.out_edges()) {
                     edge->norm(sum_edge_weight);
                 }
                 node.ltd = (node.potential >= Constants::depression_threshold);
+            }
+            else {
+                for (std::shared_ptr<Edge> edge : node.out_edges()) {
+                    Stats::EdgeStats edge_stat;
+                    edge_stat.weight = edge->weight();
+                    edge_stat.activated = false;
+                    edge_stat.conveyed_potential = 0;
+                    edge->save_stats(global_step, std::move(edge_stat));
+                }
             }
             node_stat.depressed = node.ltd;
             node.save_stats(global_step, std::move(node_stat));
@@ -84,22 +97,22 @@ std::unordered_map<std::string, std::uint32_t> LineGraph::step(std::size_t num_s
                 node.potential = static_cast<std::uint32_t>(node.potential*Constants::decay_factor);
                 node.ltd = (node.potential > Constants::activation_threshold);
             }
-            if (has_activated_nodes != nullptr) {
-                if (node.potential >= Constants::activation_threshold) {
+            if (num_step == num_steps - 1) {
+                if (outputs.count(node_num) == 1) {
+                    ret.insert({{node.identifier, Convertors::out_convertor(node.potential)}});
+                }
+                else if ((has_activated_nodes != nullptr) && (node.potential >= Constants::activation_threshold) && (!node.ltd)) {
                     *has_activated_nodes = true;
                 }
-            }
-            if ((num_step == num_steps - 1) && (outputs.find(node_num) != outputs.end())) {
-                ret.insert({{node.identifier, node.potential}});
             }
         }
     }
     return ret;
 }
 
-std::unordered_map<std::string, std::uint32_t> LineGraph::evaluate() {
+std::unordered_map<std::string, double> LineGraph::evaluate() {
     bool flag = false;
-    std::unordered_map<std::string, std::uint32_t> ret;
+    std::unordered_map<std::string, double> ret;
     for (auto&& node : nodes) {
         if (node.potential >= Constants::activation_threshold) {
             flag = true;
@@ -109,8 +122,8 @@ std::unordered_map<std::string, std::uint32_t> LineGraph::evaluate() {
     std::size_t global_step = 0;
     while (flag) {
         ret = step(1, global_step++, &flag);
-        std::cout << *this << std::endl;
     }
+    std::cout << "Passed " << global_step << " steps" << std::endl;
     return ret;
 }
 

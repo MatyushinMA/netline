@@ -40,12 +40,12 @@ public:
     /**
     Adds out edge
     */
-    void add_out_edge(Edge& edge);
+    void add_out_edge(std::shared_ptr<Edge> edge);
 
     /**
     Adds in edge
     */
-    void add_in_edge(Edge& edge);
+    void add_in_edge(std::shared_ptr<Edge> edge);
 
     /**
     Removes out edge to to
@@ -81,6 +81,11 @@ public:
     Returns last recorded stats
     */
     const Stats::NodeStats& get_last_stats() const;
+
+    /**
+    !empty() of stats
+    */
+    const bool has_stats() const { return !stats.empty(); }
 };
 
 } // namespace Netline::Graph

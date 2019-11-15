@@ -16,16 +16,16 @@ void Node::norm() {
     }
 }
 
-void Node::add_out_edge(Edge& edge) {
-    auto found = std::find_if(outs.begin(), outs.end(), [&edge](const std::shared_ptr<Edge> arg) { return arg->to() == edge.to(); });
+void Node::add_out_edge(std::shared_ptr<Edge> edge) {
+    auto found = std::find_if(outs.begin(), outs.end(), [&edge](const std::shared_ptr<Edge> arg) { return arg->to() == edge->to(); });
     assert(found == outs.end());
-    outs.insert(std::make_shared<Edge>(edge));
+    outs.insert(edge);
 }
 
-void Node::add_in_edge(Edge& edge) {
-    auto found = std::find_if(ins.begin(), ins.end(), [&edge](const std::shared_ptr<Edge> arg) { return arg->from() == edge.from(); });
+void Node::add_in_edge(std::shared_ptr<Edge> edge) {
+    auto found = std::find_if(ins.begin(), ins.end(), [&edge](const std::shared_ptr<Edge> arg) { return arg->from() == edge->from(); });
     assert(found == ins.end());
-    ins.insert(std::make_shared<Edge>(edge));
+    ins.insert(edge);
 }
 
 void Node::remove_out_edge(std::size_t to) {
@@ -43,7 +43,7 @@ void Node::remove_in_edge(std::size_t from) {
 }
 
 void Node::save_stats(std::size_t global_step, Stats::NodeStats&& _stat) {
-    stats.emplace(std::make_pair(global_step, std::move(_stat)));
+    stats[global_step] = std::move(_stat);
     if (stats.size() > Constants::stats_window) {
         stats.erase(stats.begin());
     }
@@ -56,7 +56,7 @@ const Stats::NodeStats& Node::get_stats(std::size_t global_step) const {
 
 const Stats::NodeStats& Node::get_last_stats() const {
     assert(stats.begin() != stats.end());
-    return (stats.end()--)->second;
+    return stats.rbegin()->second;
 }
 
 } // namespace Netline::Graph

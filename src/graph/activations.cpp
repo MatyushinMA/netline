@@ -1,6 +1,7 @@
 #include <netline/graph/activations.h>
 #include <netline/constants.h>
 
+
 namespace Netline::Graph::Activations {
 
 std::uint32_t linear(std::uint32_t potential) {

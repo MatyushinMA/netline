@@ -16,9 +16,9 @@ void LineGraph::add_node(std::string id, NodeType type) {
 
 void LineGraph::add_edge(std::size_t from, std::size_t to) {
     assert((from < nodes.size()) && (to < nodes.size()));
-    Edge new_edge = Edge(from, to);
-    nodes[from].add_out_edge(new_edge);
-    nodes[to].add_in_edge(new_edge);
+    auto new_edge_p = std::make_shared<Edge>(from, to);
+    nodes[from].add_out_edge(new_edge_p);
+    nodes[to].add_in_edge(new_edge_p);
     nodes[from].norm();
 }
 
@@ -83,25 +83,29 @@ std::ostream& operator<<(std::ostream &stream, const LineGraph& g) {
             stream << node.identifier << "(" << node.potential << ")";
         }
         if (node.ltd) {
-            stream << "X: [ ";
+            stream << "X:" << std::endl;
         }
         else {
-            stream << ": [ ";
+            stream << ":" << std::endl;
         }
 
         for (const std::shared_ptr<Edge> edge : node.out_edges()) {
             assert(edge->to() < g.nodes.size());
             auto& to_node = g.nodes[edge->to()];
             if (to_node.identifier == "") {
-                stream << edge->to();
+                stream << ">>" << edge->to();
             }
             else {
-                stream << to_node.identifier;
+                stream << ">>" << to_node.identifier;
             }
-            stream << "(" << edge->weight() << ") ";
+            stream << "(" << edge->weight() << ")" << std::endl;
+            if (edge->has_stats()) {
+                stream << edge->get_last_stats() << std::endl;
+            }
         }
-        stream << "]" << std::endl;
-        stream << node.get_last_stats() << std::endl;
+        if (node.has_stats()) {
+            stream << node.get_last_stats() << std::endl;
+        }
     }
     return stream;
 }

@@ -54,17 +54,17 @@ public:
     /**
     Sets values of input potentials
     */
-    void feed(std::unordered_map<std::string, std::uint32_t> potentials);
+    void feed(std::unordered_map<std::string, double> in_values);
 
     /**
     Moves potentials through graph for i steps
     */
-    std::unordered_map<std::string, std::uint32_t> step(std::size_t num_steps=1, std::size_t global_step=0, bool* has_activated_nodes=nullptr);
+    std::unordered_map<std::string, double> step(std::size_t num_steps=1, std::size_t global_step=0, bool* has_activated_nodes=nullptr);
 
     /**
-    Moves potentials through graph until decay
+    Moves potentials through graph until no activations left except for outputs
     */
-    std::unordered_map<std::string, std::uint32_t> evaluate();
+    std::unordered_map<std::string, double> evaluate();
 
     /**
     Removes edge

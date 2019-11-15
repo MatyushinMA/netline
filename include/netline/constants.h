@@ -15,12 +15,12 @@ namespace Netline {
         /**
         Starting from this potential value edges activate
         */
-        static const std::uint32_t edge_activation_threshold = 100;
+        static const std::uint32_t edge_activation_threshold = 0;
 
         /**
         Starting from this potential value neurons get LTD
         */
-        static const std::uint32_t depression_threshold = 1000;
+        static const std::uint32_t depression_threshold = 1500;
 
         /**
         Max value for potential
